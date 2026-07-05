@@ -1,0 +1,162 @@
+/* ============================================================
+   BELLA VIE — Animation Library
+   Scroll reveals, floating effects, glows, cinematic transitions.
+   Powered by IntersectionObserver in js/main.js (adds .in-view)
+   ============================================================ */
+
+@media (prefers-reduced-motion: no-preference) {
+
+  /* ---- Generic scroll reveal ---- */
+  [data-reveal] {
+    opacity: 0;
+    transform: translateY(36px);
+    transition: opacity 1s var(--ease-lux), transform 1s var(--ease-lux);
+  }
+  [data-reveal].in-view { opacity: 1; transform: translateY(0); }
+
+  [data-reveal="left"] { transform: translateX(-48px); }
+  [data-reveal="left"].in-view { transform: translateX(0); }
+
+  [data-reveal="right"] { transform: translateX(48px); }
+  [data-reveal="right"].in-view { transform: translateX(0); }
+
+  [data-reveal="scale"] { transform: scale(0.92); }
+  [data-reveal="scale"].in-view { transform: scale(1); }
+
+  [data-reveal="fade"] { transform: none; }
+
+  /* Staggered children via inline --delay custom property */
+  [data-reveal] { transition-delay: var(--delay, 0s); }
+
+  /* ---- Floating ambient elements ---- */
+  .float-slow { animation: float-y 7s ease-in-out infinite; }
+  .float-med { animation: float-y 5s ease-in-out infinite; }
+  .float-rev { animation: float-y-rev 6.5s ease-in-out infinite; }
+
+  @keyframes float-y {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-18px); }
+  }
+  @keyframes float-y-rev {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(16px); }
+  }
+
+  /* ---- Aura blob drift ---- */
+  .aura-blob { animation: aura-drift 14s ease-in-out infinite alternate; }
+  @keyframes aura-drift {
+    0%   { transform: translate(0, 0) scale(1); }
+    50%  { transform: translate(3%, -4%) scale(1.08); }
+    100% { transform: translate(-3%, 3%) scale(0.98); }
+  }
+
+  /* ---- Soft glow pulse (used on gold accents/icons) ---- */
+  .glow-pulse { animation: glow-pulse 3.2s ease-in-out infinite; }
+  @keyframes glow-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(212,175,55,0.35); }
+    50% { box-shadow: 0 0 26px 6px rgba(212,175,55,0.28); }
+  }
+
+  /* ---- Image cinematic reveal (clip-path wipe) ---- */
+  [data-reveal="wipe"] {
+    clip-path: inset(0 0 100% 0);
+    opacity: 1;
+    transform: none;
+    transition: clip-path 1.15s var(--ease-lux);
+  }
+  [data-reveal="wipe"].in-view { clip-path: inset(0 0 0% 0); }
+
+  /* ---- Parallax layers (transform applied via JS on scroll) ---- */
+  [data-parallax] { will-change: transform; }
+
+  /* ---- Number counter pop ---- */
+  .counter-item .count { transition: opacity 0.4s ease; }
+
+  /* ---- Card entrance stagger helper handled by --delay ---- */
+}
+
+/* Respect reduced motion: ensure content is visible without JS-dependent reveal */
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal], [data-reveal="wipe"] {
+    opacity: 1 !important;
+    transform: none !important;
+    clip-path: none !important;
+  }
+  .float-slow, .float-med, .float-rev, .aura-blob, .glow-pulse {
+    animation: none !important;
+  }
+}
+
+/* ---- Page transition overlay (used by main.js for link navigation) ---- */
+.page-transition {
+  position: fixed; inset: 0;
+  background: var(--color-bg);
+  z-index: 4000;
+  transform: translateY(100%);
+  pointer-events: none;
+}
+.page-transition.is-active {
+  transform: translateY(0);
+  transition: transform 0.6s var(--ease-lux);
+}
+.page-transition.is-leaving {
+  transform: translateY(-100%);
+  transition: transform 0.6s var(--ease-lux) 0.05s;
+}
+
+/* ============================================================
+   CINEMATIC ENHANCEMENTS — Ken Burns, word reveal, cursor glow
+   ============================================================ */
+@media (prefers-reduced-motion: no-preference) {
+
+  @keyframes hero-kenburns {
+    0%   { transform: scale(1.12) translate3d(0,0,0); }
+    100% { transform: scale(1.22) translate3d(-1%, -1%, 0); }
+  }
+  .hero-media img {
+    animation: hero-kenburns 18s ease-in-out infinite alternate;
+  }
+  .page-hero-media img {
+    animation: hero-kenburns 20s ease-in-out infinite alternate;
+  }
+
+  /* Word-stagger cinematic title reveal */
+  .word-reveal { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: 0.08em; }
+  .word-reveal span {
+    display: inline-block;
+    transform: translateY(110%);
+    opacity: 0;
+    animation: word-rise 1s var(--ease-lux) forwards;
+  }
+  @keyframes word-rise {
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  /* Custom cursor glow (desktop, fine pointer only) */
+  @media (hover: hover) and (pointer: fine) {
+    .cursor-glow {
+      position: fixed;
+      top: 0; left: 0;
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      border: 1px solid rgba(212,175,55,0.7);
+      background: radial-gradient(circle, rgba(212,175,55,0.18), transparent 70%);
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: width 0.25s var(--ease-lux), height 0.25s var(--ease-lux), opacity 0.25s;
+      opacity: 0;
+      will-change: transform;
+    }
+    .cursor-glow.is-active { opacity: 1; }
+    .cursor-glow.is-hovering { width: 52px; height: 52px; background: radial-gradient(circle, rgba(212,175,55,0.28), transparent 70%); }
+  }
+
+  .btn-magnetic { transition: transform 0.25s var(--ease-lux), box-shadow var(--dur-fast) var(--ease-lux), background var(--dur-fast) var(--ease-lux); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-media img, .page-hero-media img { animation: none !important; }
+  .word-reveal span { opacity: 1 !important; transform: none !important; }
+}
+
